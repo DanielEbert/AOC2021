@@ -5,6 +5,7 @@
 #include <regex>
 #include <assert.h>
 #include <set>
+#include <map>
 
 using namespace std;
 
@@ -39,15 +40,19 @@ vector<string> split(string& s, string delimiter = " ") {
     return ret;
 }
 
+struct Point {
+    uint32_t x;
+    uint32_t y;
+};
+
+bool operator<(const Point& p1, const Point& p2) {
+	return p1.x < p2.x || (p1.x == p2.x && p1.y < p2.y);
+}
+
 uint32_t part1(vector<string>& input) {
     regex line_regex("(\\d+),(\\d+) -> (\\d+),(\\d+)");
 
-    array<array<int, 1000>, 1000> board;
-    for (int i = 0; i < 1000; i++) {
-        for (int j = 0; j < 1000; j++) {
-            board[j][i] = 0;
-        }
-    }
+    map<Point, int> map;
 
     for (auto& line : input) {
         smatch line_match;
@@ -59,39 +64,26 @@ uint32_t part1(vector<string>& input) {
         uint32_t y2 = stoi(line_match[4]);
         cout << x1 << " " << y1 << " " << x2 << " " << y2 << endl;
         
-        uint32_t xmin = min(x1, x2);
-        uint32_t xmax = max(x1, x2);
+        if (x2 < x1) swap(x1, x2);
+        if (y2 < y1) swap(y1, y2);
 
-        uint32_t ymin = min(y1, y2);
-        uint32_t ymax = max(y1, y2);
+        // from now one x1 < x2 and y1 < y2
 
         if (x1 == x2) {
-            for (int i = ymin; i <= ymax; i++) {
-                board[x1][i]++;
+            for (int i = y1; i <= y2; i++) {
+                map[{x1, (uint32_t)i}]++;
             }
         }
         if (y1 == y2) {
-            for (int i = xmin; i <= xmax; i++) {
-                board[i][y1]++;
+            for (int i = x1; i <= x2; i++) {
+                map[{uint32_t(i), y1}]++;
             }
         }
-
-        /*cout << endl;
-        for (int i = 0; i < 1000; i++) {
-            for (int j = 0; j < 1000; j++) {
-                cout << board[j][i] << " ";
-            }
-            cout << endl;
-        }
-        cout << endl << endl;*/
     }
 
-    uint32_t num_overlaps = 0;
-    for (int i = 0; i < 1000; i++) {
-        for (int j = 0; j < 1000; j++) {
-            if (board[j][i] > 1) num_overlaps++;
-        }
-    }
+    uint32_t num_overlaps = count_if(map.begin(), map.end(), [](auto& p) {
+        return p.second >= 2;
+    });
 
     return num_overlaps;
 }
@@ -191,6 +183,6 @@ uint32_t part2(vector<string>& input) {
 int main() {
     auto file_content = read_file(string("./input.txt"));
 
-    //cout << part1(file_content) << endl;
-    cout << part2(file_content) << endl;
+    cout << part1(file_content) << endl;
+    //cout << part2(file_content) << endl;
 }
