@@ -65,11 +65,10 @@ uint32_t part1(vector<string>& input) {
     return current_day.size();
 }
 
-uint32_t part2(vector<string>& input) {
+uint64_t part2(vector<string>& input) {
     vector<string> timers_s = split(input[0], ",");
 
     array<uint64_t, 9> current_day = {0};
-    for (int i =0; i < 9; i++) current_day[i] = 0;
 
     for (auto& timer : timers_s) {
         current_day[stoi(timer)]++;
@@ -77,7 +76,6 @@ uint32_t part2(vector<string>& input) {
 
     for (int d = 0; d < 256; d++) {
         array<uint64_t, 9> next_day = {0};
-        for (int i = 0; i < 9; i++) next_day[i] = 0;
 
         for (int i = 0; i < 8; i++) {
             next_day[i] = current_day[i+1];
@@ -88,12 +86,12 @@ uint32_t part2(vector<string>& input) {
 
         current_day = next_day;
 
-        uint64_t sum = 0;
-        for (auto i : current_day) sum += i;
-        cout << d << " " << sum << endl;
     }
 
-    return 0;
+    uint64_t sum = 0;
+    for (auto i : current_day) sum += i;
+
+    return sum;
 }
 
 int main() {
