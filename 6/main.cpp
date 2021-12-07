@@ -67,33 +67,33 @@ uint32_t part1(vector<string>& input) {
 
 uint32_t part2(vector<string>& input) {
     vector<string> timers_s = split(input[0], ",");
-    vector<int> current_day;
-    uint32_t sum_prev_day = 0;
-    for (auto s : timers_s) {
-        //cout << s << endl;
-        current_day.push_back(stoi(s));
+
+    array<uint64_t, 9> current_day = {0};
+    for (int i =0; i < 9; i++) current_day[i] = 0;
+
+    for (auto& timer : timers_s) {
+        current_day[stoi(timer)]++;
     }
 
-    uint64_t num_fishes = 0;
+    for (int d = 0; d < 256; d++) {
+        array<uint64_t, 9> next_day = {0};
+        for (int i = 0; i < 9; i++) next_day[i] = 0;
 
-    for (int i = 0; i < 256; i++) {
-        vector<int> next_day;
-        for (auto timer : current_day) {
-            if (timer == 0) {
-                next_day.push_back(6);
-                next_day.push_back(8);
-            } else {
-                next_day.push_back(timer-1);
-            }
+        for (int i = 0; i < 8; i++) {
+            next_day[i] = current_day[i+1];
         }
+
+        next_day[6] += current_day[0];
+        next_day[8] += current_day[0];
+
         current_day = next_day;
-        if (sum_prev_day > 0) {
-            cout << current_day.size() << " " << (double)current_day.size() / sum_prev_day << endl;
-        }
-        sum_prev_day = current_day.size();
+
+        uint64_t sum = 0;
+        for (auto i : current_day) sum += i;
+        cout << d << " " << sum << endl;
     }
 
-    return num_fishes + current_day.size();
+    return 0;
 }
 
 int main() {
